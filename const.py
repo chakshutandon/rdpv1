@@ -1,16 +1,30 @@
 RDP_VERSION = 0x1
 
-# UDP supports max packet size of 64K bytes
-RDP_MAX_PACKET_LENGTH = 64 * 1024
+# Sequence numbers should be in the range [0, 18446744073709551615]
+MAX_RDP_SEQ_NO = 2 ** 64 - 1
+
+# UDP supports max packet size of 65535 bytes
+UDP_MAX_PACKET_LENGTH = 64 * 1024 - 1
+# UDP header length
+UDP_HEADER_LENGTH = 8
+# IP header
+IPV4_HEADER_LENGTH = 20
+# Padding
+PADDING = 512
+
+RDP_MAX_PACKET_LENGTH = UDP_MAX_PACKET_LENGTH - UDP_HEADER_LENGTH - IPV4_HEADER_LENGTH - PADDING
 
 # Seconds till packet retransmission
 RDP_TIMEOUT = 0.2
 
-# Sequence numbers should be in the range [0, 18446744073709551616]
-MAX_TCP_SEQ_NO = 2 ** 64
-
 # For best match with hardware and network realities, the value of bufsize should be a relatively small power of 2, for example, 4096.
 UDP_BUFFER_SIZE = 4096
+
+# RDP Connection states
+CONNECTION_DEFAULT          = 0
+CONNECTION_SYN_SENT         = 1
+CONNECTION_SYN_RECIEVED     = 2
+CONNECTION_ESTABLISHED      = 3
 
 # Flag Name       Byte Value (Hex)      Byte Value (Binary)     Meaning
 # SOCK352_SYN     0x01                  00000001                Connection initiation
@@ -41,9 +55,3 @@ SOCK352_HAS_OPT  = 0b00010000
 # };
 
 PACKET_HEADER_STRUCT = '!BBBBHHLLQQLL'
-
-# RDP Connection states
-CONNECTION_DEFAULT          = 0
-CONNECTION_SYN_SENT         = 1
-CONNECTION_SYN_RECIEVED     = 2
-CONNECTION_ESTABLISHED      = 3
