@@ -1,4 +1,5 @@
 import socket
+import select
 
 class UDPTransport:
     def __init__(self, host, TX_port, RX_port):
@@ -17,8 +18,11 @@ class UDPTransport:
     def bind(self):
         self.rx_socket.bind((self.host, self.RX_port))
 
-    def recv(self, size):
-        self.rx_socket.recvfrom(size)
+    def recv(self, size, timeout=None):
+        is_ready = select.select([self.rx_socket], [], [], timeout)
+        if not is_ready[0]:
+            return (1, 0)
+        return 0, self.rx_socket.recvfrom(size)
 
     def send(self, packet, host):
         self.tx_socket.sendto(packet, (host, self.TX_port))
