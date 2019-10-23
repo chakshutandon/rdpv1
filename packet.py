@@ -1,8 +1,8 @@
 import struct
 
-from const import RDP_VERSION, PACKET_HEADER_STRUCT
+from const import RDP_VERSION, RDP_HEADER_STRUCT
 
-packet_header = struct.Struct(PACKET_HEADER_STRUCT)
+packet_header = struct.Struct(RDP_HEADER_STRUCT)
 RDP_HEADER_SIZE = packet_header.size
 
 class RDPPacket:
@@ -10,7 +10,7 @@ class RDPPacket:
         self, data=None, version=RDP_VERSION, flags=0x0, opt_ptr=0x0, protocol=0x0, 
         source_port=0x0, dest_port=0x0, sequence_no=0x0, ack_no=0x0, window=0x0
     ):
-        self.data = data
+        self.data = data                    # bytes in network-order (big-endian)
         self.version = version
         self.flags = flags
         self.opt_ptr = opt_ptr
@@ -31,7 +31,7 @@ class RDPPacket:
         if self.data:
             self.payload_len = len(self.data)
 
-        header = struct.Struct(PACKET_HEADER_STRUCT)
+        header = struct.Struct(RDP_HEADER_STRUCT)
         return header.pack(
             self.version,
             self.flags,
@@ -52,7 +52,7 @@ class RDPPacket:
         self.data = payload
 
         header_data = bytes[:RDP_HEADER_SIZE]
-        header = struct.Struct(PACKET_HEADER_STRUCT)
+        header = struct.Struct(RDP_HEADER_STRUCT)
 
         fields = header.unpack(header_data)
         self.version        = fields[0]
@@ -71,5 +71,5 @@ class RDPPacket:
     def to_bytes(self):
         packet = self.build_header()
         if self.data:
-            packet += bytes(self.data)
+            packet += self.data
         return packet

@@ -1,7 +1,10 @@
 RDP_VERSION = 0x1
 
 # Sequence numbers should be in the range [0, 18446744073709551615]
-MAX_RDP_SEQ_NO = 2 ** 64 - 1
+# MAX_RDP_SEQ_NO = 2 ** 64 - 1
+
+# TODO: remove
+MAX_RDP_SEQ_NO = 0
 
 # UDP supports max packet size of 65535 bytes
 UDP_MAX_PACKET_LENGTH = 64 * 1024 - 1
@@ -12,7 +15,7 @@ IPV4_HEADER_LENGTH = 20
 # Padding
 PADDING = 512
 
-RDP_MAX_PACKET_LENGTH = UDP_MAX_PACKET_LENGTH - UDP_HEADER_LENGTH - IPV4_HEADER_LENGTH - PADDING
+MAX_RDP_PACKET_LENGTH = UDP_MAX_PACKET_LENGTH - UDP_HEADER_LENGTH - IPV4_HEADER_LENGTH - PADDING
 
 # Seconds till packet retransmission
 RDP_TIMEOUT = 0.2
@@ -39,7 +42,7 @@ SOCK352_ACK      = 0b00000100
 SOCK352_RESET    = 0b00001000
 SOCK352_HAS_OPT  = 0b00010000
 
-# struct __attribute__ ((__packed__)) packet_header { 
+# struct __attribute__ ((__packed__)) rdp_header { 
     # uint8_t version;              /* version number */
     # uint8_t flags;                /* for connection set up, tear-down, control */
     # uint8_t opt_ptr;              /* option type between the header and payload */
@@ -54,4 +57,4 @@ SOCK352_HAS_OPT  = 0b00010000
     # uint32_t payload_len;         /* length of the payload */
 # };
 
-PACKET_HEADER_STRUCT = '!BBBBHHLLQQLL'
+RDP_HEADER_STRUCT = '!BBBBHHLLQQLL'
