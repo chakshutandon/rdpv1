@@ -8,7 +8,7 @@ import collections
 import threading
 import time
 
-from const import (SOCK352_SYN, SOCK352_ACK, SOCK352_RESET, MAX_RDP_SEQ_NO, MAX_RDP_PACKET_LENGTH, \
+from const import (SOCK352_SYN, SOCK352_ACK, SOCK352_RESET, SOCK352_FIN, MAX_RDP_SEQ_NO, MAX_RDP_PACKET_LENGTH, \
                   RDP_HEADER_STRUCT, RDP_TIMEOUT, CONNECTION_ESTABLISHED, CONNECTION_SYN_SENT,     \
                   CONNECTION_SYN_RECIEVED)
 from transport import UDPTransport
@@ -169,7 +169,15 @@ class socket:
         return (client_socket, client_address)
     
     def close(self):
-        return 
+        # Send data packet
+        seq_no = self.connection.current_sn
+        ack_no = self.connection.peer_sn
+        data_packet = RDPPacket(flags=SOCK352_FIN, sequence_no=seq_no, ack_no=ack_no)
+        self.send_packet(data_packet, self.dest_address)
+
+        udp_transport.rx_socket.close()
+        udp_transport.tx_socket.close()
+        self.connection.state = 0
 
     def send(self, buffer):
         buffer_len = len(buffer)
@@ -218,9 +226,15 @@ class socket:
             packet_header = RDPPacket()
             packet_header.from_bytes(header_bytes)
 
-            # TODO: Verify not RESET
-            # TODO: Verify not FIN
-
+            # Verify not FIN
+            if packet_header.flags & SOCK352_FIN:
+                # Send ACK
+                seq_no = self.connection.current_sn
+                ack_no = packet_header.sequence_no
+                ack_packet = RDPPacket(flags=SOCK352_ACK, sequence_no=seq_no, ack_no=ack_no)
+                self.send_packet(ack_packet, self.dest_address)
+                self.close()
+                return
 
             peer_sn = packet_header.sequence_no
 

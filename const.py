@@ -1,10 +1,7 @@
 RDP_VERSION = 0x1
 
 # Sequence numbers should be in the range [0, 18446744073709551615]
-# MAX_RDP_SEQ_NO = 2 ** 64 - 1
-
-# TODO: remove
-MAX_RDP_SEQ_NO = 0
+MAX_RDP_SEQ_NO = 2 ** 64 - 1
 
 # UDP supports max packet size of 65535 bytes
 UDP_MAX_PACKET_LENGTH = 64 * 1024 - 1
