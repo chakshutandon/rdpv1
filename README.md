@@ -5,7 +5,7 @@
 
 Reliable Data Protocol (RDP) version 1 (352 RDPv1)
 
-RDPv1 uses python SOCK_DGRAM (UDP) sockets to reliably transfer files between two nodes.  
+RDPv1 builds on python SOCK_DGRAM (UDP) sockets to reliably transfer files between two nodes.  
 
 
 # Getting Started
