@@ -35,57 +35,6 @@ def init(TX_port, RX_port):
         
     udp_transport = UDPTransport(UDP_HOST, TX_port, RX_port)
     udp_transport.bind()
-
-def ack_timeout(connection, seq_no, ack_no, state):
-    time.sleep(RDP_TIMEOUT)
-
-    connection.mutex.acquire()    
-    last_ack = connection.last_ack
-    connection.mutex.release()
-
-    if last_ack >= ack_no:
-        return
-
-
-def ack_listener(connection, expected_last_ack, state):
-    global udp_transport
-    
-    bytes_available = collections.deque(maxlen=MAX_RDP_PACKET_LENGTH)
-
-    while True:
-        # Reduce number of syscalls
-        if len(bytes_available) < RDP_HEADER_SIZE:
-            _, request = udp_transport.recv(MAX_RDP_PACKET_LENGTH)
-            data, _ = request
-            bytes_available.extend(data)
-        
-        header_bytes = bytes([bytes_available.popleft() for _ in range(RDP_HEADER_SIZE)])
-
-        packet_header = RDPPacket()
-        packet_header.from_bytes(header_bytes)
-
-        # TODO: Verify not RESET
-        # TODO: Verify not FIN
-
-        # Verify zero payload
-        assert packet_header.payload_len == 0
-
-        ack_no = packet_header.ack_no
-
-        nbytes = 0
-
-        connection.mutex.acquire()
-        if ack_no > connection.last_ack:
-            nbytes = ack_no - connection.last_ack
-            connection.last_ack = ack_no
-        connection.mutex.release()
-
-        state.mutex.acquire()
-        state.bytes_ack += nbytes
-        state.mutex.release()
-
-        if ack_no >= expected_last_ack:
-            break
     
 class socket:
     def __init__(self):
@@ -238,16 +187,12 @@ class socket:
 
             # Wait for ACK
             err, request = udp_transport.recv(RDP_HEADER_SIZE, timeout=RDP_TIMEOUT)
-            if err:
-                print("Fail")
-                continue
+            if err: continue
             ack_data, _ = request
             ack_header = RDPPacket()
             ack_header.from_bytes(ack_data)
             
-            if ack_header.ack_no != seq_no + payload_len:
-                print("Fail")
-                continue
+            if ack_header.ack_no != seq_no + payload_len: continue
         
             self.connection.current_sn += payload_len
             offset += payload_len
@@ -276,13 +221,11 @@ class socket:
             # TODO: Verify not RESET
             # TODO: Verify not FIN
 
-            peer_sn = packet_header.sequence_no
 
-            print(f"Got {peer_sn}")
+            peer_sn = packet_header.sequence_no
 
             # Go Back N (GBN) discards out-of-order packets
             if peer_sn != self.connection.peer_sn:
-                print(f"Retransmit {self.connection.peer_sn}")
                 # Send ACK for last in-order packet
                 seq_no = self.connection.current_sn
                 ack_packet = RDPPacket(flags=SOCK352_ACK, sequence_no=seq_no, ack_no=self.connection.peer_sn)
