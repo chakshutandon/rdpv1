@@ -21,7 +21,7 @@ from transport import UDPTransport
 from packet import RDPPacket, RDP_HEADER_LENGTH
 from connection import Connection
 
-DEBUG = False
+DEBUG = True
 
 RDP_MAX_PAYLOAD_LENGTH = RDP_MAX_PACKET_LENGTH - RDP_HEADER_LENGTH
 
@@ -380,6 +380,10 @@ class socket:
             packet_header.from_bytes(header_bytes)
 
             peer_sn = packet_header.sequence_no
+
+            if packet_header.flags & SOCK352_FIN:
+                self.close()
+                break
 
             if peer_sn != self.connection.peer_sn:
                 if DEBUG:
