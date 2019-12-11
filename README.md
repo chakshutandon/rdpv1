@@ -5,7 +5,29 @@
 
 Reliable Data Protocol (RDP) version 1 (352 RDPv1)
 
-RDPv1 builds on python SOCK_DGRAM (UDP) sockets to reliably transfer files between two nodes.  
+RDPv1 builds on python SOCK_DGRAM (UDP) sockets to reliably transfer files between two nodes.
+
+Supports:
+
+```
+- [x] Go-Back N Protocol
+- [x] Flow Control
+- [ ] Multiple Clients
+```
+
+API:
+
+```
+bind(address)
+connect(address)
+listen(backlog)
+accept()
+close()
+send(buffer)
+recv(numBytes)
+```
+
+
 
 
 # Getting Started
@@ -20,6 +42,6 @@ Change into directory:
 
 Run using python:
 
-`python3 server1.py -f<filepath> -u<rx_port> -v<tx_port>`
+`python3 server2.py -f<filepath> -u<rx_port> -v<tx_port>`
 
-`python3 client1.py -f<filepath> -d<hostname> -u<rx_port> -v<tx_port>`
+`python3 client2.py -f<filepath> -d<hostname> -u<rx_port> -v<tx_port>`
