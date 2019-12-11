@@ -18,7 +18,8 @@ RDP_MAX_SEQ_NO = 2 ** 64 - 1
 # Max RDP payload
 RDP_MAX_PACKET_LENGTH = UDP_MAX_PACKET_LENGTH - \
     UDP_HEADER_LENGTH - IPV4_HEADER_LENGTH - PADDING
-
+# Used to support receiver flow control
+RDP_MAX_RECEIVER_WINDOW = 262 * 1024
 # Seconds till packet retransmission
 RDP_TIMEOUT = 0.2
 
